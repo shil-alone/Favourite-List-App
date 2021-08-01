@@ -1,6 +1,7 @@
 package com.codershil.favouritelistapp;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -27,10 +28,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CategoryRecyclerAdapter.CategoryClickListener {
 
     private ActivityMainBinding binding;
     private RecyclerView recyclerView;
+    public static final String CATEGORY_OBJECT_KEY = "CATEGORY_OBJECT_KEY";
     CategoryManager categoryManager = new CategoryManager(this);
 
     @Override
@@ -42,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.category_recyclerview);
 
-        ArrayList<Category> categories = new ArrayList<>();
-        recyclerView.setAdapter(new CategoryRecyclerAdapter(categories));
+        ArrayList<Category> categories = categoryManager.retrieveCategories();
+        recyclerView.setAdapter(new CategoryRecyclerAdapter(categories,this));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
@@ -88,10 +90,21 @@ public class MainActivity extends AppCompatActivity {
 
                 CategoryRecyclerAdapter categoryRecyclerAdapter = (CategoryRecyclerAdapter) recyclerView.getAdapter();
                 categoryRecyclerAdapter.addCategory(category);
+                showCategoryItems(category);
 
             }
         });
         builder.create().show();
     }
 
+    private void showCategoryItems(Category category){
+        Intent intent = new Intent(MainActivity.this, CategoryItemsActivity.class);
+        intent.putExtra(CATEGORY_OBJECT_KEY,category);
+        startActivity(intent);
+    }
+
+    @Override
+    public void categoryIsClicked(Category category) {
+        showCategoryItems(category);
+    }
 }
